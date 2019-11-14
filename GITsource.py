@@ -41,6 +41,7 @@ dotgit = [
 	"/.git/refs/stash"
 ]
 
+
 headers = {
 	"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36"
 }
@@ -59,8 +60,8 @@ def Download_File(url):
 
 def Download_objects(SHA1_hash_lists, url, SHA1_hash):
 	if SHA1_hash not in SHA1_hash_lists:
+		SHA1_hash_lists.append(SHA1_hash)
 		if Download_File(url+"/.git/objects/{}/{}".format(SHA1_hash[:2], SHA1_hash[2:])):
-			SHA1_hash_lists.append(SHA1_hash)
 			proc = subprocess.Popen("cd {}; git cat-file -p {}".format(url.split("//")[-1], SHA1_hash), stdout=subprocess.PIPE, shell=True)
 			(out, err) = proc.communicate()
 			for SHA1_hash in re.findall("[0-9a-fA-F]{40}", out):
@@ -68,12 +69,10 @@ def Download_objects(SHA1_hash_lists, url, SHA1_hash):
 
 try:
 	url = sys.argv[1]
+	SHA1_hash_lists = list()
 	for i in dotgit:
-		Download_File(url+i)
-	if os.path.exists(url.split("//")[-1]+"/.git/refs/heads/master"):
-		SHA1_hash_lists = list()
-		SHA1_hash = open(url.split("//")[-1]+"/.git/refs/heads/master").read()[:-1]
-		Download_objects(SHA1_hash_lists, url, SHA1_hash)
-
+		if Download_File(url+i):
+			for SHA1_hash in re.findall("[0-9a-fA-F]{40}", open(url.split("//")[-1] + i).read()):
+				Download_objects(SHA1_hash_lists, url, SHA1_hash)
 except Exception as e:
 	exit("python {} URL".format(sys.argv[0]))
