@@ -41,7 +41,6 @@ dotgit = [
 	"/.git/refs/stash"
 ]
 
-
 headers = {
 	"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36"
 }
@@ -59,12 +58,12 @@ def Download_File(url):
 	return False
 
 def Download_objects(SHA1_hash_lists, url, SHA1_hash):
-	if SHA1_hash not in SHA1_hash_lists:
-		SHA1_hash_lists.append(SHA1_hash)
-		if Download_File(url+"/.git/objects/{}/{}".format(SHA1_hash[:2], SHA1_hash[2:])):
-			proc = subprocess.Popen("cd {}; git cat-file -p {}".format(url.split("//")[-1], SHA1_hash), stdout=subprocess.PIPE, shell=True)
-			(out, err) = proc.communicate()
-			for SHA1_hash in re.findall("[0-9a-fA-F]{40}", out):
+	if Download_File(url+"/.git/objects/{}/{}".format(SHA1_hash[:2], SHA1_hash[2:])):
+		proc = subprocess.Popen("cd {}; git cat-file -p {}".format(url.split("//")[-1], SHA1_hash), stdout=subprocess.PIPE, shell=True)
+		(out, err) = proc.communicate()
+		for SHA1_hash in re.findall("[0-9a-fA-F]{40}", out):
+			if SHA1_hash not in SHA1_hash_lists:
+				SHA1_hash_lists.append(SHA1_hash)
 				Download_objects(SHA1_hash_lists, url, SHA1_hash)
 
 try:
@@ -72,7 +71,10 @@ try:
 	SHA1_hash_lists = list()
 	for i in dotgit:
 		if Download_File(url+i):
-			for SHA1_hash in re.findall("[0-9a-fA-F]{40}", open(url.split("//")[-1] + i).read()):
-				Download_objects(SHA1_hash_lists, url, SHA1_hash)
+			for SHA1_hash in re.findall("[0-9a-fA-F]{40}", open(url.split("//")[-1]+i).read()):
+				if SHA1_hash not in SHA1_hash_lists:
+					SHA1_hash_lists.append(SHA1_hash)
+	for SHA1_hash in SHA1_hash_lists:
+		Download_objects(SHA1_hash_lists, url, SHA1_hash)
 except Exception as e:
 	exit("python {} URL".format(sys.argv[0]))
