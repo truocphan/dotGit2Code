@@ -131,7 +131,7 @@ def Data_Restore(SHA1_hash, File_Path):
 	tree_blob = re.findall(b"\d+ (.+) ([a-f0-9]{40})\t(.+)", git_cat_file(SHA1_hash))
 	for data in tree_blob:
 		if data[1].decode("utf-8") in Object_hash_exists:
-			if data[0] == b'blob' and not re.search("{}".format(data[1]).encode("utf-8"), git_cat_file(data[1])):
+			if data[0] == b'blob' and not re.search("{}".format(data[1]).encode("utf-8"), git_cat_file(data[1].decode("utf-8"))):
 				f = open(os.path.join(ROOTDIR, File_Path, data[2].decode("utf-8")), "wb")
 				f.write(git_cat_file(data[1].decode("utf-8")))
 				f.close()
