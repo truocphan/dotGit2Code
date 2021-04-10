@@ -148,8 +148,8 @@ def Data_Restore(SHA1_hash, File_Path):
 def main():
 	if len(sys.argv) != 2:
 		exit("""
- Usage: python {} <URL>
-  Example: python {} http://example.com/.git/
+ Usage: python3 {} <URL>
+  Example: python3 {} http://example.com/.git/
 """.format(sys.argv[0], sys.argv[0]))
 
 	global TARGET, ROOTDIR, Object_hash_unknown, Object_hash_exists, Committed_Time
