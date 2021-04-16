@@ -5,6 +5,7 @@
 ## Requirements
 - Operating System: Windows, Linux
 - Python 3
+- git
 
 ## Installation
 ```
