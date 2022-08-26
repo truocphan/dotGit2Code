@@ -1,10 +1,12 @@
 import sys, os, subprocess
-import wget
+# import wget
 import requests
 import re
 import urllib.parse
 import time
 from datetime import datetime
+import warnings
+warnings.filterwarnings("ignore", message="Unverified HTTPS request")
 
 
 
@@ -20,12 +22,14 @@ a8"    `Y88  a8"     "8a   88     88      88888  88    88        a8P"      88   
 "8a,   ,d88  "8a,   ,a8"   88,     Y8a.    .a88  88    88,    d8"           Y8a.    .a8P  "8a,   ,a8"  "8a,   ,d88  "8b,   ,aa  
  `"8bbdP"Y8   `"YbbdP"'    "Y888    `"Y88888P"   88    "Y888  88888888888    `"Y8888Y"'    `"YbbdP"'    `"8bbdP"Y8   `"Ybbd8"'  
                                                                                                                                 
-                                                                                         v2021.04.10 by Truoc Phan
+                                                                                         v2022.08.26 by @truocphan
 
-  [+] Discord:  https://discord.gg/2GTZKwN
-  [+] Facebook: https://www.facebook.com/292706121240740
-  [+] Github:   https://github.com/truocphan
-  [+] Gmail:    truocphan112017@gmail.com
+ [+] BuyMeaCoffee: https://www.buymeacoffee.com/truocphan
+ [+] Facebook: https://www.facebook.com/292706121240740
+ [+] Twitter: https://twitter.com/truocphan
+ [+] Github: https://github.com/truocphan
+ [+] Gmail: truocphan112017@gmail.com
+ [+] Discord: https://discord.gg/2GTZKwN
 
 """)
 
@@ -39,6 +43,11 @@ proxies = {
 	"https": "http://127.0.0.1:8080"
 }
 '''
+proxies = {
+	"http": None,
+	"https": None
+}
+
 
 dotGit = [
 	"COMMIT_EDITMSG",
@@ -66,15 +75,16 @@ def git_cat_file(SHA1_hash, option="p"):
 
 
 def Download_File_from_Server(resource):
-	if requests.get(TARGET + resource, headers=headers).status_code == 200:
+	if requests.get(TARGET + resource, headers=headers, verify=False, allow_redirects=False, proxies=proxies).status_code == 200:
 		file_path = resource.split("/")
 		if not os.path.exists(os.path.join(ROOTDIR, ".git", *file_path[:-1])):
 			os.makedirs(os.path.join(ROOTDIR, ".git", *file_path[:-1]))
 		print(" ==> Downloading: {}".format(TARGET + resource))
 		if os.path.exists(os.path.join(ROOTDIR, ".git", *file_path)):
 			os.remove(os.path.join(ROOTDIR, ".git", *file_path))
-		wget.download(TARGET + resource, os.path.join(ROOTDIR, ".git", *file_path))
-		print("\n")
+		# wget.download(TARGET + resource, os.path.join(ROOTDIR, ".git", *file_path))
+		r = requests.get(TARGET + resource, headers=headers, verify=False, allow_redirects=False, proxies=proxies)
+		open(os.path.join(ROOTDIR, ".git", *file_path), 'wb').write(r.content)
 		time.sleep(0.2)
 		return True
 	return False
